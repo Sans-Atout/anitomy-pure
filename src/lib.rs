@@ -33,7 +33,7 @@ pub(crate) mod utils;
 /// # Example
 ///
 /// ```rust
-/// use anitomy_rust::{Parser, elements::Category};
+/// use anitomy_pure::{Parser, elements::Category};
 ///
 /// let result = Parser::new("[HorribleSubs] Boku no Hero Academia - 73 [1080p].mkv")
 ///     .parse()
