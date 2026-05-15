@@ -11,7 +11,7 @@
 
 Please **do not** open a public GitHub issue for security vulnerabilities.
 
-Send a report to **aug.roussetrouviere@gmail.com** with:
+Send a report to **augustin@rousset-rouviere.fr** with:
 
 - A description of the vulnerability
 - Steps to reproduce (a filename string or minimal code snippet is usually enough)
