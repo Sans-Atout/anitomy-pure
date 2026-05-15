@@ -6,7 +6,7 @@ use crate::elements::Category;
 
 /// Metadata associated with a recognised keyword string.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct Keyword {
+pub(crate) struct Keyword {
     category: Category,
     identifiable: bool,
     searchable: bool,
@@ -15,7 +15,7 @@ pub struct Keyword {
 
 impl Keyword {
     /// Creates a keyword for the given category with all flags set to `true`.
-    pub fn new(c: Category) -> Keyword {
+    pub(crate) fn new(c: Category) -> Keyword {
         Keyword {
             category: c,
             identifiable: true,
@@ -25,54 +25,54 @@ impl Keyword {
     }
 
     /// Sets whether this keyword can be identified as a standalone token.
-    pub fn identifiable(&mut self, b: bool) -> Keyword {
+    pub(crate) fn identifiable(&mut self, b: bool) -> Keyword {
         self.identifiable = b;
         self.to_owned()
     }
 
     /// Sets whether this keyword is looked up during the keyword search pass.
-    pub fn searchable(&mut self, b: bool) -> Keyword {
+    pub(crate) fn searchable(&mut self, b: bool) -> Keyword {
         self.searchable = b;
         self.to_owned()
     }
 
     /// Sets whether a match against this keyword produces a usable element value.
-    pub fn valid(&mut self, b: bool) -> Keyword {
+    pub(crate) fn valid(&mut self, b: bool) -> Keyword {
         self.valid = b;
         self.to_owned()
     }
 
     /// Returns `true` if this keyword can be identified as a standalone token.
-    pub fn is_identifiable(&self) -> bool {
+    pub(crate) fn is_identifiable(&self) -> bool {
         self.identifiable
     }
 
     /// Returns `true` if this keyword is looked up during the keyword search pass.
-    pub fn is_searchable(&self) -> bool {
+    pub(crate) fn is_searchable(&self) -> bool {
         self.searchable
     }
 
     /// Returns `true` if a match against this keyword produces a usable element value.
-    pub fn is_valid(&self) -> bool {
+    pub(crate) fn is_valid(&self) -> bool {
         self.valid
     }
 
     /// Returns the category this keyword belongs to.
-    pub fn get_category(&self) -> Category {
+    pub(crate) fn get_category(&self) -> Category {
         self.category
     }
 }
 
 /// Lookup table mapping uppercase keyword strings to their [`Keyword`] metadata.
 #[derive(Default, Debug, Clone, PartialEq, Eq)]
-pub struct Manager {
+pub(crate) struct Manager {
     /// The underlying map. Keyed by the uppercase ASCII form of the keyword.
-    pub keywords: HashMap<String, Keyword>,
+    pub(crate) keywords: HashMap<String, Keyword>,
 }
 
 impl Manager {
     /// Creates a manager pre-populated with the full anime filename keyword vocabulary.
-    pub fn new() -> Manager {
+    pub(crate) fn new() -> Manager {
         Manager::default()
             .add(
                 "S",
@@ -342,7 +342,7 @@ impl Manager {
     }
 
     /// Looks up a keyword by string, case-insensitively. Returns `None` if not found.
-    pub fn find(&self, s: &str) -> Option<&Keyword> {
+    pub(crate) fn find(&self, s: &str) -> Option<&Keyword> {
         let bytes = s.as_bytes();
         if bytes.len() <= 64 && s.is_ascii() {
             let mut buf = [0u8; 64];

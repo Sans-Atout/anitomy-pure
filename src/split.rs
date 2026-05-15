@@ -2,7 +2,7 @@
 use crate::token::main_token::Token;
 
 /// Splits a compound string like `"OVA3"` into its alpha prefix and digit suffix.
-pub fn split_type_and_ep(to_parse: &str) -> (&str, &str) {
+pub(crate) fn split_type_and_ep(to_parse: &str) -> (&str, &str) {
     let split_at = to_parse
         .char_indices()
         .find(|(_, c)| c.is_ascii_digit())
@@ -11,7 +11,7 @@ pub fn split_type_and_ep(to_parse: &str) -> (&str, &str) {
 }
 
 /// Splits a filename string into [`Token`]s, respecting bracket pairs (including Japanese brackets).
-pub fn split_raw_data(raw_data: &str, delimiter: &[char]) -> Vec<Token> {
+pub(crate) fn split_raw_data(raw_data: &str, delimiter: &[char]) -> Vec<Token> {
     let mut raw_tokens: Vec<Token> = Vec::default();
     let mut segment_start = 0;
     let mut segment_end = 0;
@@ -45,7 +45,7 @@ pub fn split_raw_data(raw_data: &str, delimiter: &[char]) -> Vec<Token> {
 }
 
 /// Splits a raw token string into subtoken strings on the given delimiters.
-pub fn split_token(raw_token: &str, delimiter: &[char]) -> Vec<String> {
+pub(crate) fn split_token(raw_token: &str, delimiter: &[char]) -> Vec<String> {
     let trimmed = raw_token.trim_matches(delimiter);
     let mut tokenized: Vec<String> = Vec::default();
     let mut seg_start = 0;
