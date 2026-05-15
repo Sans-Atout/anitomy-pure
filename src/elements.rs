@@ -137,7 +137,9 @@ impl Elements {
 
     /// Returns `true` if an element with the given category and exact value exists.
     pub fn contains(&self, c: Category, v: &str) -> bool {
-        self.elements.iter().any(|e| e.category == c && e.value == v)
+        self.elements
+            .iter()
+            .any(|e| e.category == c && e.value == v)
     }
 
     /// Appends a new element (mutable, in-place).
@@ -161,7 +163,12 @@ impl Elements {
     /// Useful for multi-episode ranges where several [`EpisodeNumber`](Category::EpisodeNumber)
     /// elements may be present.
     pub fn find_all(&self, c: Category) -> Option<Vec<Element>> {
-        let v: Vec<Element> = self.elements.iter().filter(|e| e.category == c).cloned().collect();
+        let v: Vec<Element> = self
+            .elements
+            .iter()
+            .filter(|e| e.category == c)
+            .cloned()
+            .collect();
         if v.is_empty() { None } else { Some(v) }
     }
 

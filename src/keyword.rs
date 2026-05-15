@@ -239,7 +239,10 @@ impl Manager {
             .add("THORA", Keyword::new(Category::ReleaseGroup))
             .add("BATCH", Keyword::new(Category::ReleaseInformation))
             .add("COMPLETE", Keyword::new(Category::ReleaseInformation))
-            .add("VERSION", Keyword::new(Category::ReleaseInformation).identifiable(false))
+            .add(
+                "VERSION",
+                Keyword::new(Category::ReleaseInformation).identifiable(false),
+            )
             .add("PATCH", Keyword::new(Category::ReleaseInformation))
             .add("REMUX", Keyword::new(Category::ReleaseInformation))
             .add(

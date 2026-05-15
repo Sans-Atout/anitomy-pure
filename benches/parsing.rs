@@ -1,5 +1,5 @@
 use anitomy_pure::Parser;
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
+use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
 
 // Representative sample of real-world anime filenames covering common patterns:
 // bracketed group, dotted format, seasons, movies, OVA, multi-episode, checksums.

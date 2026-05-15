@@ -29,7 +29,7 @@ pub(crate) fn is_resolution(s: &str) -> bool {
         return matches!(num_len, 3 | 4) && num_len == n - 1;
     }
     // WxH or W×H: 3–4 digits, separator, 3–4 digits
-    if let Some(sep) = s.find(|c| c == 'x' || c == 'X' || c == '×') {
+    if let Some(sep) = s.find(['x', 'X', '×']) {
         let sep_char = s[sep..].chars().next().unwrap();
         let left = &s[..sep];
         let right = &s[sep + sep_char.len_utf8()..];
@@ -50,9 +50,7 @@ pub(crate) fn is_anime_year(s: &str) -> bool {
 
 /// Returns `true` if every byte of `s` is a valid hexadecimal digit.
 pub(crate) fn is_hexa(s: &str) -> bool {
-    !s.is_empty()
-        && s.bytes()
-            .all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f' | b'A'..=b'F'))
+    !s.is_empty() && s.bytes().all(|b: u8| b.is_ascii_hexdigit())
 }
 
 /// Returns `true` if `s` is a non-empty string of ASCII digits (optional leading `+`/`-`).

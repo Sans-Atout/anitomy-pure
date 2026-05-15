@@ -17,12 +17,24 @@ pub(crate) fn split_raw_data(raw_data: &str, delimiter: &[char]) -> Vec<Token> {
     let mut segment_end = 0;
 
     for (i, c) in raw_data.char_indices() {
-        let is_open = matches!(c, '[' | '(' | '{' | '\u{300C}' | '\u{300E}' | '\u{3010}' | '\u{FF08}');
-        let is_close = matches!(c, ']' | ')' | '}' | '\u{300D}' | '\u{300F}' | '\u{3011}' | '\u{FF09}');
+        let is_open = matches!(
+            c,
+            '[' | '(' | '{' | '\u{300C}' | '\u{300E}' | '\u{3010}' | '\u{FF08}'
+        );
+        let is_close = matches!(
+            c,
+            ']' | ')' | '}' | '\u{300D}' | '\u{300F}' | '\u{3011}' | '\u{FF09}'
+        );
 
         if is_open {
             if segment_end > segment_start {
-                raw_tokens.push(Token::new(&raw_data[segment_start..segment_end], delimiter, false, false, false));
+                raw_tokens.push(Token::new(
+                    &raw_data[segment_start..segment_end],
+                    delimiter,
+                    false,
+                    false,
+                    false,
+                ));
             }
             segment_start = i + c.len_utf8();
             segment_end = segment_start;
@@ -30,7 +42,13 @@ pub(crate) fn split_raw_data(raw_data: &str, delimiter: &[char]) -> Vec<Token> {
             if segment_end > segment_start {
                 let paren = matches!(c, ')' | '\u{FF09}');
                 let corner = matches!(c, '\u{300D}' | '\u{300F}');
-                raw_tokens.push(Token::new(&raw_data[segment_start..segment_end], delimiter, true, paren, corner));
+                raw_tokens.push(Token::new(
+                    &raw_data[segment_start..segment_end],
+                    delimiter,
+                    true,
+                    paren,
+                    corner,
+                ));
             }
             segment_start = i + c.len_utf8();
             segment_end = segment_start;
@@ -39,7 +57,13 @@ pub(crate) fn split_raw_data(raw_data: &str, delimiter: &[char]) -> Vec<Token> {
         }
     }
     if segment_end > segment_start {
-        raw_tokens.push(Token::new(&raw_data[segment_start..segment_end], delimiter, false, false, false));
+        raw_tokens.push(Token::new(
+            &raw_data[segment_start..segment_end],
+            delimiter,
+            false,
+            false,
+            false,
+        ));
     }
     raw_tokens
 }
@@ -60,7 +84,10 @@ pub(crate) fn split_token(raw_token: &str, delimiter: &[char]) -> Vec<String> {
                 tokenized.push(trimmed[seg_start..byte_i].to_string());
             }
             // Look-ahead: two consecutive delimiters → emit the first as a subtoken
-            if i + 2 < len && delimiter.contains(&chars[i + 1].1) && delimiter.contains(&chars[i + 2].1) {
+            if i + 2 < len
+                && delimiter.contains(&chars[i + 1].1)
+                && delimiter.contains(&chars[i + 2].1)
+            {
                 let (deli_byte, deli_char) = chars[i + 1];
                 let deli_end = deli_byte + deli_char.len_utf8();
                 tokenized.push(trimmed[deli_byte..deli_end].to_string());
@@ -91,7 +118,14 @@ mod tests {
         let d: Vec<char> = vec![' ', '_', '.', '&', '+', ',', '|'];
         let s = "hello_world I.m&a+beautifull,rust|test";
         let e: Vec<&str> = vec![
-            "hello", "world", "I", "m", "a", "beautifull", "rust", "test",
+            "hello",
+            "world",
+            "I",
+            "m",
+            "a",
+            "beautifull",
+            "rust",
+            "test",
         ];
         assert_eq!(e, split_token(s, &d))
     }

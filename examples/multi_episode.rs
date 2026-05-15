@@ -14,8 +14,14 @@ fn main() {
 
         print!("{filename}");
 
-        let title = result.find(Category::AnimeTitle).map(|e| e.value).unwrap_or_default();
-        let season = result.find(Category::AnimeSeason).map(|e| e.value).unwrap_or_default();
+        let title = result
+            .find(Category::AnimeTitle)
+            .map(|e| e.value)
+            .unwrap_or_default();
+        let season = result
+            .find(Category::AnimeSeason)
+            .map(|e| e.value)
+            .unwrap_or_default();
         print!("\n  title  : {title}");
         if !season.is_empty() {
             print!("\n  season : {season}");
@@ -24,7 +30,11 @@ fn main() {
         match result.find_all(Category::EpisodeNumber) {
             Some(episodes) if episodes.len() > 1 => {
                 let nums: Vec<&str> = episodes.iter().map(|e| e.value.as_str()).collect();
-                println!("\n  episodes: {} (range of {})", nums.join(", "), nums.len());
+                println!(
+                    "\n  episodes: {} (range of {})",
+                    nums.join(", "),
+                    nums.len()
+                );
             }
             Some(episodes) => {
                 println!("\n  episode : {}", episodes[0].value);

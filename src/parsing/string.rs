@@ -9,7 +9,10 @@ use crate::{
 pub(crate) fn parse_anime_title(tokens: &mut [Token], found_elements: &mut Elements, d: &[char]) {
     // Pre-pass: a japanese-corner bracket (「」) is itself the complete title.
     for i in 0..tokens.len() {
-        if tokens[i].is_japanese_corner() && tokens[i].is_inside_delimiter() && tokens[i].contains_unknow() {
+        if tokens[i].is_japanese_corner()
+            && tokens[i].is_inside_delimiter()
+            && tokens[i].contains_unknow()
+        {
             let title = {
                 let (raw, sub_tokens) = tokens[i].raw_and_subtokens();
                 let t = format!("「{}」", raw);
@@ -18,9 +21,9 @@ pub(crate) fn parse_anime_title(tokens: &mut [Token], found_elements: &mut Eleme
                 }
                 t
             };
-            for j in (i + 1)..tokens.len() {
-                if !tokens[j].is_inside_delimiter() {
-                    for st in tokens[j].sub_tokens().iter_mut() {
+            for token in tokens[i + 1..].iter_mut() {
+                if !token.is_inside_delimiter() {
+                    for st in token.sub_tokens().iter_mut() {
                         st.category(SubTokenCategory::Found);
                     }
                 }
@@ -35,7 +38,10 @@ pub(crate) fn parse_anime_title(tokens: &mut [Token], found_elements: &mut Eleme
 
     while tmp_index < tokens.len() {
         if tokens[tmp_index].contains_unknow() && !tokens[tmp_index].is_inside_delimiter() {
-            let has_alpha = tokens[tmp_index].raw_token().chars().any(|c| c.is_alphanumeric());
+            let has_alpha = tokens[tmp_index]
+                .raw_token()
+                .chars()
+                .any(|c| c.is_alphanumeric());
             if !has_alpha {
                 tmp_index += 1;
                 continue;
@@ -47,7 +53,10 @@ pub(crate) fn parse_anime_title(tokens: &mut [Token], found_elements: &mut Eleme
                     .filter(|s| s.is_category(SubTokenCategory::Unknow) && !s.value().is_empty())
                     .collect();
                 if digit_unknowns.len() == 1
-                    && digit_unknowns[0].value().chars().all(|c| c.is_ascii_digit())
+                    && digit_unknowns[0]
+                        .value()
+                        .chars()
+                        .all(|c| c.is_ascii_digit())
                 {
                     for st in tokens[tmp_index].sub_tokens().iter_mut() {
                         if st.is_category(SubTokenCategory::Unknow) && !st.value().is_empty() {
@@ -80,8 +89,8 @@ pub(crate) fn parse_anime_title(tokens: &mut [Token], found_elements: &mut Eleme
     if anime_title.is_empty() {
         let mut first_idx: Option<usize> = None;
         let mut second_idx: Option<usize> = None;
-        for i in 0..tokens.len() {
-            if tokens[i].contains_unknow() && tokens[i].is_inside_delimiter() {
+        for (i, token) in tokens.iter().enumerate() {
+            if token.contains_unknow() && token.is_inside_delimiter() {
                 if first_idx.is_none() {
                     first_idx = Some(i);
                 } else if second_idx.is_none() {
@@ -102,7 +111,11 @@ pub(crate) fn parse_anime_title(tokens: &mut [Token], found_elements: &mut Eleme
                     .iter()
                     .filter(|st| st.is_category(SubTokenCategory::Unknow))
                     .count();
-                if first_count > second_count { Some(f) } else { Some(s) }
+                if first_count > second_count {
+                    Some(f)
+                } else {
+                    Some(s)
+                }
             }
             _ => None,
         };
@@ -113,7 +126,12 @@ pub(crate) fn parse_anime_title(tokens: &mut [Token], found_elements: &mut Eleme
     }
 }
 
-fn find_anime_title(tokens: &mut [Token], starting_index: usize, d: &[char], found_elements: &Elements) -> String {
+fn find_anime_title(
+    tokens: &mut [Token],
+    starting_index: usize,
+    d: &[char],
+    found_elements: &Elements,
+) -> String {
     let mut token_index = starting_index;
     let mut anime_title = String::new();
 
@@ -144,9 +162,13 @@ fn find_anime_title(tokens: &mut [Token], starting_index: usize, d: &[char], fou
 
             if d.contains(&'.') && !anime_title.is_empty() && current_val.len() <= 2 {
                 let last_space_word = anime_title.trim_start().rsplit(' ').next().unwrap_or("");
-                let prev_last_seg = last_space_word.rsplit('.').next().unwrap_or(last_space_word);
+                let prev_last_seg = last_space_word
+                    .rsplit('.')
+                    .next()
+                    .unwrap_or(last_space_word);
                 if prev_last_seg.len() <= 2 && !prev_last_seg.is_empty() {
-                    let mut dot_form = String::with_capacity(last_space_word.len() + 1 + current_val.len());
+                    let mut dot_form =
+                        String::with_capacity(last_space_word.len() + 1 + current_val.len());
                     dot_form.push_str(last_space_word);
                     dot_form.push('.');
                     dot_form.push_str(current_val);
@@ -173,11 +195,12 @@ fn find_anime_title(tokens: &mut [Token], starting_index: usize, d: &[char], fou
                         && current_val.len() >= 2
                         && last_word.chars().all(|c| c.is_alphabetic())
                         && current_val.chars().all(|c| c.is_alphabetic())
-                        && last_word.chars().next().map_or(false, |c| c.is_uppercase())
-                        && current_val.chars().next().map_or(false, |c| c.is_uppercase())
+                        && last_word.chars().next().is_some_and(|c| c.is_uppercase())
+                        && current_val.chars().next().is_some_and(|c| c.is_uppercase())
                         && next_is_found2;
                     if both_single_digits || both_alpha_words {
-                        let mut dash_form = String::with_capacity(last_word.len() + 1 + current_val.len());
+                        let mut dash_form =
+                            String::with_capacity(last_word.len() + 1 + current_val.len());
                         dash_form.push_str(last_word);
                         dash_form.push('-');
                         dash_form.push_str(current_val);
@@ -195,7 +218,10 @@ fn find_anime_title(tokens: &mut [Token], starting_index: usize, d: &[char], fou
             // Handle alpha-prefix + digit-suffix compounds like "EX01", "OVA3.5", "ED2", "OP4a".
             // Consult the keyword manager to decide: include alpha in title, or skip entirely.
             if !current_val.is_empty() {
-                let alpha_len = current_val.bytes().take_while(|b| b.is_ascii_alphabetic()).count();
+                let alpha_len = current_val
+                    .bytes()
+                    .take_while(|b| b.is_ascii_alphabetic())
+                    .count();
                 if alpha_len > 0 && alpha_len < current_val.len() {
                     let alpha_prefix = &current_val[..alpha_len];
                     let digit_suffix = &current_val[alpha_len..];
@@ -207,18 +233,17 @@ fn find_anime_title(tokens: &mut [Token], starting_index: usize, d: &[char], fou
                             // Include alpha prefix in title: EX01 → "EX", OVA3.5 → "OVA".
                             let is_ep_suffix = !digit_suffix.is_empty()
                                 && digit_suffix.bytes().any(|b| b.is_ascii_digit())
-                                && digit_suffix.bytes().all(|b| b.is_ascii_digit() || b == b'.');
+                                && digit_suffix
+                                    .bytes()
+                                    .all(|b| b.is_ascii_digit() || b == b'.');
                             if is_ep_suffix
                                 && !found_elements.is_category_empty(Category::EpisodeNumber)
                             {
                                 let ep_matches = found_elements
                                     .find(Category::EpisodeNumber)
-                                    .map_or(false, |ep| {
+                                    .is_some_and(|ep| {
                                         ep.value == digit_suffix
-                                            || ep.value
-                                                .split('.')
-                                                .next()
-                                                .map_or(false, |n| n == digit_suffix)
+                                            || (ep.value.split('.').next() == Some(digit_suffix))
                                     });
                                 if ep_matches {
                                     let prefix_owned = alpha_prefix.to_owned();
@@ -258,8 +283,7 @@ fn find_anime_title(tokens: &mut [Token], starting_index: usize, d: &[char], fou
             && token_index + 1 < tokens.len()
             && !tokens[token_index + 1].is_inside_delimiter()
             && tokens[token_index + 1].contains_unknow();
-        if !tokens[token_index].contains_unknow()
-            || (is_inside && !is_weak && !is_embedded_bracket)
+        if !tokens[token_index].contains_unknow() || (is_inside && !is_weak && !is_embedded_bracket)
         {
             return anime_title.trim_matches(d).to_owned();
         }
@@ -337,7 +361,8 @@ pub(crate) fn parse_release_group(tokens: &mut [Token], found_elements: &mut Ele
     let mut rg_has_before = false;
     let mut rg_has_raw_alpha_before = false;
     for i in 0..n {
-        if !tokens[i].is_inside_delimiter() || tokens[i].is_weak() || tokens[i].is_japanese_corner() {
+        if !tokens[i].is_inside_delimiter() || tokens[i].is_weak() || tokens[i].is_japanese_corner()
+        {
             continue;
         }
         if !tokens[i].is_full_unknow() && !tokens[i].contains_unknow() {
@@ -352,7 +377,8 @@ pub(crate) fn parse_release_group(tokens: &mut [Token], found_elements: &mut Ele
             !tokens[j].is_inside_delimiter()
                 && tokens[j].raw_token().chars().any(|c| c.is_alphabetic())
         });
-        let has_after = ((i + 1)..n).any(|j| !tokens[j].is_inside_delimiter() && tokens[j].contains_unknow());
+        let has_after =
+            ((i + 1)..n).any(|j| !tokens[j].is_inside_delimiter() && tokens[j].contains_unknow());
         if has_before && has_after {
             continue;
         }
@@ -365,12 +391,16 @@ pub(crate) fn parse_release_group(tokens: &mut [Token], found_elements: &mut Ele
         if tokens[i].is_full_unknow() {
             let group = {
                 let sub_tokens = tokens[i].sub_tokens();
-                let by_pos = sub_tokens.iter().position(|s| s.value().to_uppercase() == "BY");
+                let by_pos = sub_tokens
+                    .iter()
+                    .position(|s| s.value().to_uppercase() == "BY");
                 if let Some(p) = by_pos {
                     if p > 0 && p + 1 < sub_tokens.len() {
                         let mut g = String::new();
                         for (k, s) in sub_tokens[p + 1..].iter().enumerate() {
-                            if k > 0 { g.push(' '); }
+                            if k > 0 {
+                                g.push(' ');
+                            }
                             g.push_str(s.value());
                         }
                         for st in sub_tokens.iter_mut() {
@@ -395,10 +425,15 @@ pub(crate) fn parse_release_group(tokens: &mut [Token], found_elements: &mut Ele
                 st.category(SubTokenCategory::Found);
             }
             found_elements.push(Category::ReleaseGroup, &raw_owned);
-        } else if !rg_has_before || tokens[i].is_paren() {
-            if tokens[i].is_paren() && rg_has_raw_alpha_before || !rg_has_raw_alpha_before {
-                parse_particular_string_subtoken(&mut tokens[i], found_elements, Category::ReleaseGroup, d);
-            }
+        } else if (!rg_has_raw_alpha_before || tokens[i].is_paren())
+            && (tokens[i].is_paren() || !rg_has_before)
+        {
+            parse_particular_string_subtoken(
+                &mut tokens[i],
+                found_elements,
+                Category::ReleaseGroup,
+                d,
+            );
         }
     }
 
@@ -419,7 +454,8 @@ pub(crate) fn parse_release_group(tokens: &mut [Token], found_elements: &mut Ele
                     && s.value().chars().all(|c| c.is_alphabetic())
             });
             if let Some((idx, _)) = candidate {
-                let prev_is_found = idx > 0 && sub_tokens[idx - 1].is_category(SubTokenCategory::Found);
+                let prev_is_found =
+                    idx > 0 && sub_tokens[idx - 1].is_category(SubTokenCategory::Found);
                 if !prev_is_found {
                     continue;
                 }
@@ -474,7 +510,10 @@ pub(crate) fn parse_particular_string_subtoken(
         while sub_token_id < all_subtoken.len()
             && !all_subtoken[sub_token_id].is_category(SubTokenCategory::Found)
             && !all_subtoken[sub_token_id].value().is_empty()
-            && !all_subtoken[sub_token_id].value().chars().any(|ch| ch.is_alphanumeric())
+            && !all_subtoken[sub_token_id]
+                .value()
+                .chars()
+                .any(|ch| ch.is_alphanumeric())
         {
             all_subtoken[sub_token_id].category(SubTokenCategory::Found);
             sub_token_id += 1;
@@ -516,8 +555,8 @@ pub(crate) fn parse_multiple_keyword(
         let trimmed = buf.trim();
         if let Some(found) = keyword_manager.find(trimmed) {
             let category = found.get_category();
-            let ok = category.is_searchable()
-                && !(category.is_singular() && !e.is_category_empty(category));
+            let ok = (e.is_category_empty(category) || !category.is_singular())
+                && category.is_searchable();
             if ok {
                 e.push(category, trimmed);
                 return true;

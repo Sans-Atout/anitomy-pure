@@ -48,7 +48,7 @@ fn is_fractal(s: &str) -> bool {
 pub(crate) fn parse_single_ep(s: &str, elements: &mut Elements) -> bool {
     let b = s.as_bytes();
     let n = b.len();
-    if n < 3 || n > 6 {
+    if !(3..=6).contains(&n) {
         return false;
     }
     if !b[n - 1].is_ascii_digit() || (b[n - 2] != b'v' && b[n - 2] != b'V') {
@@ -71,8 +71,12 @@ pub(crate) fn match_multiple_ep(s: &str, elements: &mut Elements) -> bool {
     let Some(sep_idx) = sep else { return false };
     let left = &s[..sep_idx];
     let right = &s[sep_idx + 1..];
-    let Some((ep1, ver1)) = parse_ep_with_version(left) else { return false };
-    let Some((ep2, ver2)) = parse_ep_with_version(right) else { return false };
+    let Some((ep1, ver1)) = parse_ep_with_version(left) else {
+        return false;
+    };
+    let Some((ep2, ver2)) = parse_ep_with_version(right) else {
+        return false;
+    };
     let n1: u32 = ep1.parse().unwrap_or(u32::MAX);
     let n2: u32 = ep2.parse().unwrap_or(0);
     if n1 >= n2 {
@@ -182,15 +186,13 @@ pub(crate) fn match_season_ep_patern(s: &str, elements: &mut Elements) -> bool {
     };
 
     // optional version: 'v'/'V' + single digit
-    let version = if pos + 1 < len
-        && (b[pos] == b'v' || b[pos] == b'V')
-        && b[pos + 1].is_ascii_digit()
-    {
-        pos += 2;
-        Some(&s[pos - 1..pos])
-    } else {
-        None
-    };
+    let version =
+        if pos + 1 < len && (b[pos] == b'v' || b[pos] == b'V') && b[pos + 1].is_ascii_digit() {
+            pos += 2;
+            Some(&s[pos - 1..pos])
+        } else {
+            None
+        };
 
     if pos != len {
         return false;
@@ -267,15 +269,13 @@ pub(crate) fn match_number_sign_patern(s: &str, elements: &mut Elements) -> bool
     };
 
     // optional version
-    let version = if pos + 1 < b.len()
-        && (b[pos] == b'v' || b[pos] == b'V')
-        && b[pos + 1].is_ascii_digit()
-    {
-        pos += 2;
-        Some(&rest[pos - 1..pos])
-    } else {
-        None
-    };
+    let version =
+        if pos + 1 < b.len() && (b[pos] == b'v' || b[pos] == b'V') && b[pos + 1].is_ascii_digit() {
+            pos += 2;
+            Some(&rest[pos - 1..pos])
+        } else {
+            None
+        };
 
     if pos != b.len() {
         return false;
@@ -382,7 +382,7 @@ pub(crate) fn match_type_episode(
 /// Main episode number extraction: runs three passes (prefix, season+ep, bare digit) over all tokens.
 pub(crate) fn parse_episode_number(
     delimiter: &[char],
-    tokens_to_parse: &mut Vec<Token>,
+    tokens_to_parse: &mut [Token],
     found_elements: &mut Elements,
 ) {
     for token in tokens_to_parse.iter_mut() {
@@ -428,7 +428,7 @@ pub(crate) fn parse_episode_number(
                 let starts_with_alpha = val_to_parse
                     .bytes()
                     .next()
-                    .map_or(false, |b| b.is_ascii_alphabetic());
+                    .is_some_and(|b| b.is_ascii_alphabetic());
                 let ep_prefix_added =
                     found_elements.count(Category::EpisodePrefix) > ep_prefix_count_before;
                 // For AnimeType/suppressed-EpisodePrefix compounds keep the alpha part
@@ -528,8 +528,7 @@ pub(crate) fn parse_episode_number(
                                 if !has_text_before || !has_text_after || preceded_by_dash {
                                     sub_tokens[index].category(SubTokenCategory::Found);
                                     sub_tokens[index + 1].category(SubTokenCategory::Found);
-                                    found_elements
-                                        .push(Category::EpisodeNumber, &fractal_pattern);
+                                    found_elements.push(Category::EpisodeNumber, &fractal_pattern);
                                     return;
                                 }
                                 continue;
@@ -599,11 +598,8 @@ pub(crate) fn parse_episode_number(
                         if is_digit(next_token.value())
                             && !next_token.is_category(SubTokenCategory::Found)
                         {
-                            let fractal_pattern = format!(
-                                "{}.{}",
-                                tested_subtoken.value(),
-                                next_token.value()
-                            );
+                            let fractal_pattern =
+                                format!("{}.{}", tested_subtoken.value(), next_token.value());
                             if raw_token_owned.contains(&fractal_pattern) {
                                 subtoken_index += 1;
                                 continue;
@@ -621,14 +617,12 @@ pub(crate) fn parse_episode_number(
                                 sub_token.get(subtoken_index).is_some_and(|next| {
                                     next.is_category(SubTokenCategory::Unknow)
                                         && next.value() == "-"
-                                        && sub_token.get(subtoken_index + 1..).is_some_and(
-                                            |rest| {
-                                                rest.iter().any(|s| {
-                                                    s.is_category(SubTokenCategory::Unknow)
-                                                        && !is_digit(s.value())
-                                                })
-                                            },
-                                        )
+                                        && sub_token.get(subtoken_index + 1..).is_some_and(|rest| {
+                                            rest.iter().any(|s| {
+                                                s.is_category(SubTokenCategory::Unknow)
+                                                    && !is_digit(s.value())
+                                            })
+                                        })
                                 });
                             if !followed_by_dash_then_unknown {
                                 let has_text_before = pos > 0
@@ -636,11 +630,9 @@ pub(crate) fn parse_episode_number(
                                         s.is_category(SubTokenCategory::Unknow)
                                             && !is_digit(s.value())
                                     });
-                                let has_text_after =
-                                    sub_token[subtoken_index..].iter().any(|s| {
-                                        s.is_category(SubTokenCategory::Unknow)
-                                            && !is_digit(s.value())
-                                    });
+                                let has_text_after = sub_token[subtoken_index..].iter().any(|s| {
+                                    s.is_category(SubTokenCategory::Unknow) && !is_digit(s.value())
+                                });
                                 if has_text_before && has_text_after {
                                     // Relax: if multiple structural keywords are found after
                                     // this number (structured dot-file), it IS an episode.
@@ -676,8 +668,7 @@ pub(crate) fn parse_episode_number(
                     if tested_subtoken.value().len() == 1 && subtoken_index >= 2 {
                         let prev = &sub_token[subtoken_index - 2];
                         if !is_digit(prev.value()) && prev.is_category(SubTokenCategory::Unknow) {
-                            let compound =
-                                format!("{}.{}", prev.value(), tested_subtoken.value());
+                            let compound = format!("{}.{}", prev.value(), tested_subtoken.value());
                             if raw_token_owned.contains(&compound) {
                                 continue;
                             }
@@ -697,7 +688,7 @@ pub(crate) fn parse_episode_number(
 
 /// Detects an alternative episode number (e.g. absolute number alongside a season number).
 pub(crate) fn detect_episode_number_alt(
-    tokens_to_parse: &mut Vec<Token>,
+    tokens_to_parse: &mut [Token],
     found_elements: &mut Elements,
 ) {
     let ep_count = found_elements.count(Category::EpisodeNumber);
@@ -713,9 +704,7 @@ pub(crate) fn detect_episode_number_alt(
                 let to_keep = if v1.len() <= v2.len() { v1 } else { v2 };
                 found_elements.push(Category::EpisodeNumber, &to_keep);
                 found_elements.remove_first(Category::EpisodePrefix);
-            } else if n1 >= 0
-                && n2 >= 0
-                && !found_elements.is_category_empty(Category::AnimeSeason)
+            } else if n1 >= 0 && n2 >= 0 && !found_elements.is_category_empty(Category::AnimeSeason)
             {
                 let (smaller, larger) = if n1 < n2 { (v1, v2) } else { (v2, v1) };
                 found_elements.remove_first(Category::EpisodeNumber);
@@ -755,7 +744,9 @@ pub(crate) fn detect_episode_number_alt(
                 if val.len() != ep_elem.value.len() {
                     continue;
                 }
-                let old_ep = found_elements.remove_first(Category::EpisodeNumber).unwrap();
+                let old_ep = found_elements
+                    .remove_first(Category::EpisodeNumber)
+                    .unwrap();
                 found_elements.push(Category::EpisodeNumber, val);
                 found_elements.push(Category::EpisodeNumberAlt, &old_ep);
                 sub_tokens[0].category(SubTokenCategory::Found);

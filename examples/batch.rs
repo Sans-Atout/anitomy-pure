@@ -9,7 +9,10 @@ fn main() {
         "Fullmetal.Alchemist.Brotherhood.OVA.1080p.BluRay.x264.mkv",
     ];
 
-    println!("{:<50} {:<30} {:<8} {:<6}", "Title", "Group", "Episode", "Res");
+    println!(
+        "{:<50} {:<30} {:<8} {:<6}",
+        "Title", "Group", "Episode", "Res"
+    );
     println!("{}", "-".repeat(100));
 
     for filename in &filenames {

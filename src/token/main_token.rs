@@ -37,12 +37,16 @@ impl Token {
 
     /// Returns `true` if at least one subtoken is still unclassified.
     pub(crate) fn contains_unknow(&self) -> bool {
-        self.tokens.iter().any(|t| t.is_category(SubTokenCategory::Unknow))
+        self.tokens
+            .iter()
+            .any(|t| t.is_category(SubTokenCategory::Unknow))
     }
 
     /// Returns `true` if every subtoken is still unclassified.
     pub(crate) fn is_full_unknow(&self) -> bool {
-        self.tokens.iter().all(|t| t.is_category(SubTokenCategory::Unknow))
+        self.tokens
+            .iter()
+            .all(|t| t.is_category(SubTokenCategory::Unknow))
     }
 
     /// Returns `true` if this token is a single unclassified digit string.
@@ -106,8 +110,10 @@ mod tests {
     #[test]
     fn is_subtoken_found() {
         assert!(!SubToken::new("40F2A957").is_category(SubTokenCategory::Found));
-        assert!(SubToken::new("40F2A957")
-            .category(SubTokenCategory::Found)
-            .is_category(SubTokenCategory::Found));
+        assert!(
+            SubToken::new("40F2A957")
+                .category(SubTokenCategory::Found)
+                .is_category(SubTokenCategory::Found)
+        );
     }
 }
