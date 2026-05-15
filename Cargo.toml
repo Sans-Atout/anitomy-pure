@@ -1,0 +1,30 @@
+[package]
+name = "anitomy-pure"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+
+authors = ["Sans-Atout <augustin@rousset-rouviere.fr>"]
+description = "Fast, zero-dependency Rust library for parsing anime video filenames"
+
+license = "MPL-2.0"
+readme = "README.md"
+
+categories = ["parsing"]
+keywords = ["anitomy","anime","filenames", "parsing"]
+
+[dependencies]
+
+
+[dev-dependencies]
+pretty_assertions = "1.4.1"
+
+# Benchmarks dependencies
+criterion = { version = "0.5", features = ["html_reports"]}
+anitomy = "0.2.0"
+hunch = {version = "2.0.2", default-features = false}
+zantetsu = "0.2.0"
+
+[[bench]]
+name = "parsing"
+harness = false
