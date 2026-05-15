@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Display};
 
-use anitomy_rust::{
+use anitomy_pure::{
     elements::{Category, Element, Elements},
     errors::ParsingError,
 };

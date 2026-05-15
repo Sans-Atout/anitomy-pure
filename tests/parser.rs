@@ -1,4 +1,4 @@
-use anitomy_rust::Parser;
+use anitomy_pure::Parser;
 
 #[test]
 fn default() {

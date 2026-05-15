@@ -1,5 +1,5 @@
-use anitomy_rust::elements::{Category, Elements};
-use anitomy_rust::Parser;
+use anitomy_pure::Parser;
+use anitomy_pure::elements::{Category, Elements};
 use pretty_assertions::assert_eq;
 #[test]
 fn test_7c4169a80d0f50c05618431ecd403006d78a1c99() {

@@ -1,4 +1,4 @@
-use anitomy_rust::{elements::Category, Parser};
+use anitomy_pure::{Parser, elements::Category};
 
 fn main() {
     let filename = "[Commie] Steins;Gate - 01 [BD 1080p AAC] [A1B2C3D4].mkv";
@@ -27,7 +27,7 @@ fn main() {
     print_summary(&ignored);
 }
 
-fn print_summary(result: &anitomy_rust::elements::Elements) {
+fn print_summary(result: &anitomy_pure::elements::Elements) {
     for cat in [
         Category::ReleaseGroup,
         Category::AnimeTitle,

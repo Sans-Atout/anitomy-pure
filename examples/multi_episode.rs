@@ -1,4 +1,4 @@
-use anitomy_rust::{elements::Category, Parser};
+use anitomy_pure::{Parser, elements::Category};
 
 fn main() {
     let filenames = [

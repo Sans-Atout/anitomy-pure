@@ -1,6 +1,6 @@
-use anitomy_rust::{
-    elements::{Category, Element},
+use anitomy_pure::{
     Parser,
+    elements::{Category, Element},
 };
 
 use pretty_assertions::assert_eq;

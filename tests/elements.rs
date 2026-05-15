@@ -1,6 +1,6 @@
-use anitomy_rust::elements::Category;
-use anitomy_rust::elements::Element;
-use anitomy_rust::elements::Elements;
+use anitomy_pure::elements::Category;
+use anitomy_pure::elements::Element;
+use anitomy_pure::elements::Elements;
 
 use pretty_assertions::assert_eq;
 use pretty_assertions::assert_ne;
