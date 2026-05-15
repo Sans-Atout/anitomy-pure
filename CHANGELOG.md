@@ -7,49 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- Anime title extraction for compound alpha+digit tokens: `EP07.5` no longer includes "EP" in the title, `SP01` no longer includes "SP", and `S01E01` stops the title at "S" correctly
-- `OVA3.5`, `EX01` and similar searchable/invalid-prefix tokens are correctly included in the title when the episode number has already been found
-- Non-bracketed release groups in `codec-GROUP` patterns (e.g. `x264-ESiR`) are now detected via a fallback scan when no bracketed group is present
-- Added `EX` as an `EpisodePrefix` keyword (valid=false) to handle filler/special episode markers
-- Added `SAISON` as an `AnimeSeasonPrefix` keyword for French-language filenames
+## [0.1.0] — 2026-05-15
 
 ### Added
 
-- `Elements::find_all()` returns `Option<Vec<Element>>` for multi-episode ranges and other repeated categories
-- `Elements::is_category_empty()` convenience predicate
-- `Elements::count()` returns how many elements exist for a given category
-- Full support for Japanese episode counters (`第01話`), multi-episode ranges (`01-03`), and season patterns (`S2E04`)
+- `Parser` builder API — construct with `Parser::new(filename)`, configure with builder methods, then call `.parse()`
+- Builder options: `ep_number`, `ep_title`, `file_extension`, `release_group` (all default `true`)
+- Builder options: `allowed_delimiters` (default `[' ', '_', '.', '-', '&', '+', ',', '|']`) and `ignored_string` for pre-stripping substrings
+- `Category` enum covering all extractable fields: `AnimeTitle`, `EpisodeNumber`, `EpisodeNumberAlt`, `EpisodePrefix`, `EpisodeTitle`, `AnimeSeason`, `AnimeSeasonPrefix`, `AnimeType`, `AnimeYear`, `AudioTerm`, `DeviceCompatibility`, `FileChecksum`, `FileExtension`, `FileName`, `Language`, `Other`, `ReleaseGroup`, `ReleaseInformation`, `ReleaseVersion`, `Source`, `Subtitles`, `VideoResolution`, `VideoTerm`, `VolumeNumber`, `VolumePrefix`
+- `Element` struct with `category` and `value` fields
+- `Elements` collection returned by `Parser::parse`, with:
+  - `find(Category)` — returns `Option<Element>` for the first match
+  - `find_all(Category)` — returns `Option<Vec<Element>>` for repeated categories (e.g. multi-episode ranges)
+  - `count(Category)` — number of elements for a given category
+  - `is_category_empty(Category)` — predicate for absence of a category
+  - `contains(Category, &str)` — checks for a specific value in a category
+  - `is_empty()` — true if no elements were extracted at all
+  - `size()` — total element count across all categories
+- Full support for Japanese episode counters (`第01話`), multi-episode ranges (`01-03`), and season+episode patterns (`S2E04`)
+- Non-bracketed release group detection via fallback scan for `codec-GROUP` patterns (e.g. `x264-ESiR`)
+- `EX` episode prefix keyword for filler/special episode markers
+- `SAISON` season prefix keyword for French-language filenames
+- Graceful handling of incomplete filenames (unclosed brackets): returns `FileName` and `FileExtension` only
 
 ### Changed
 
-- **Breaking**: `Elements::find()` now returns `Option<Element>` instead of `Result<Element, CategoryNotFound>`
-- **Breaking**: `Elements::find_all()` now returns `Option<Vec<Element>>` instead of `Result<Vec<Element>, CategoryNotFound>`
-- Complete rewrite of the parsing engine — all parsing now uses hand-written O(n) byte scanners instead of regular expressions
-- Zero production dependencies: `regex`, `unicode-normalization`, and `error-stack` have been removed
-- `parse()` returns `Result<Elements, ParsingError>` using `std::result::Result` (no longer `error_stack::Result`)
-- Hot paths no longer allocate: title building uses `push_str`, extension lookup uses a static `LazyLock<HashSet>`
-
-### Removed
-
-- `CategoryNotFound` error type — callers should match on `None` instead
-- `normalize()` utility function (unused)
-- All production dependencies (`regex`, `unicode-normalization`, `error-stack`)
+- Parsing engine uses hand-written O(n) byte scanners throughout — no regular expressions
+- `parse()` returns `Result<Elements, ParsingError>` using `std::result::Result`
+- Zero production dependencies
 
 ### Performance
 
-- ~18.7× faster than the previous implementation (2.27 ms → ~121 µs for 50 files)
-- Now faster than the original C++ library it is based on (~147 µs)
+- ~121 µs for 15 files on a representative benchmark
+- Faster than the original C++ library the project draws inspiration from
 
-## [0.0.4] — 2024-01-01
-
-### Added
-
-- Initial public release
-- Core parsing for episode number, anime title, release group, video/audio terms, file extension, checksum, language, subtitles, season, volume, and more
-- Builder API (`Parser::new().ep_number(true).parse()`)
-- `allowed_delimiters` and `ignored_string` builder options
-
-[Unreleased]: https://github.com/Sans-Atout/anitomy-pure/compare/v0.0.4...HEAD
-[0.0.4]: https://github.com/Sans-Atout/anitomy-pure/releases/tag/v0.0.4
+[Unreleased]: https://github.com/Sans-Atout/anitomy-pure/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Sans-Atout/anitomy-pure/releases/tag/v0.1.0
