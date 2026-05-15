@@ -8,6 +8,7 @@
 
 use elements::Elements;
 use errors::ParsingError;
+use utils::remove_ignored_string;
 
 /// Public types returned by the parser: [`Category`](elements::Category), [`Element`](elements::Element), [`Elements`](elements::Elements).
 pub mod elements;
@@ -15,3 +16,7 @@ pub mod elements;
 pub mod errors;
 pub mod token;
 pub mod keyword;
+pub mod split;
+pub mod utils;
+
+use crate::split::split_raw_data;
