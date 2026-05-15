@@ -88,3 +88,26 @@ impl Token {
         self.japanese_corner
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Token;
+    use crate::elements::Elements;
+    use crate::token::subtoken::{SubToken, SubTokenCategory};
+
+    #[test]
+    fn contain_unknow() {
+        let d: Vec<char> = vec![' ', '_', '.', '&', '+', ',', '|'];
+        let _tmp_e = Elements::new();
+        let t = Token::new("40F2A957", &d, true, true, false);
+        assert!(t.contains_unknow());
+    }
+
+    #[test]
+    fn is_subtoken_found() {
+        assert!(!SubToken::new("40F2A957").is_category(SubTokenCategory::Found));
+        assert!(SubToken::new("40F2A957")
+            .category(SubTokenCategory::Found)
+            .is_category(SubTokenCategory::Found));
+    }
+}
